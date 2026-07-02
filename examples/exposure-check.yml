@@ -1,0 +1,17 @@
+# Drop this into .github/workflows/ of your own repo to gate PRs on exposure.
+name: exposure-check
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+permissions:
+  contents: read
+jobs:
+  exposure-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: bariskececi/exposure-check@v1
+        with:
+          repo: ${{ github.repository }}
+          fail-on: high
