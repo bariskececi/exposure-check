@@ -14,7 +14,7 @@ import (
 //go:embed dashboard/static
 var staticFS embed.FS
 
-func runDashboard(port int, token string) {
+func runDashboard(host string, port int, token string) {
 	mux := http.NewServeMux()
 
 	// serve static files
@@ -193,8 +193,11 @@ func runDashboard(port int, token string) {
 		w.Write([]byte(out))
 	})
 
-	addr := fmt.Sprintf(":%d", port)
-	fmt.Fprintf(os.Stderr, "\n  exposure-check dashboard\n  http://localhost%s\n\n", addr)
+	addr := fmt.Sprintf("%s:%d", host, port)
+	if host != "127.0.0.1" && host != "localhost" {
+		fmt.Fprintf(os.Stderr, "\n  ⚠ WARNING: dashboard is listening on %s — accessible from the network.\n  Ensure this is intentional. Anyone who can reach this port can trigger scans.\n\n", addr)
+	}
+	fmt.Fprintf(os.Stderr, "\n  exposure-check dashboard\n  http://%s\n\n", addr)
 	if err := http.ListenAndServe(addr, mux); err != nil {
 		fmt.Fprintln(os.Stderr, "error:", err)
 		os.Exit(1)

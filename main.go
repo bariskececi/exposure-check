@@ -38,7 +38,7 @@ USAGE
   exposure-check scan --github-org <org> [flags]
   exposure-check scan --repo <owner/repo> [flags]
   exposure-check scan --domain <domain> [flags]
-  exposure-check serve [--port 3000]                       # web dashboard
+  exposure-check serve [--port 3000] [--host 127.0.0.1]     # web dashboard
 
 FLAGS
   --repo         owner/repo to scan
@@ -60,6 +60,7 @@ Educational & defensive use only: scan assets you own or are authorised to asses
 
 func runServe(args []string) {
 	fs := flag.NewFlagSet("serve", flag.ExitOnError)
+	host := fs.String("host", "127.0.0.1", "bind address (default localhost only)")
 	port := fs.Int("port", 3000, "dashboard port")
 	token := fs.String("token", "", "GitHub token")
 	_ = fs.Parse(args)
@@ -67,7 +68,7 @@ func runServe(args []string) {
 	if tok == "" {
 		tok = os.Getenv("GITHUB_TOKEN")
 	}
-	runDashboard(*port, tok)
+	runDashboard(*host, *port, tok)
 }
 
 func runScan(args []string) {

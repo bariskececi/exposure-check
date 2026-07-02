@@ -28,10 +28,10 @@ exposure-check serve --port 8080        # custom port
   <img src="docs/dashboard-scan.png" width="100%" alt="Dashboard — scan form">
 </p>
 <p align="center">
-  <img src="docs/dashboard-results.png" width="100%" alt="Dashboard — scanning in progress">
+  <img src="docs/dashboard-scanning.png" width="100%" alt="Dashboard — scanning in progress">
 </p>
 <p align="center">
-  <img src="docs/dashboard-findings.png" width="100%" alt="Dashboard — results with findings">
+  <img src="docs/dashboard-results.png" width="100%" alt="Dashboard — results with findings">
 </p>
 
 ## Install
