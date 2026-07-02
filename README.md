@@ -126,8 +126,8 @@ Gate pull requests on exposure in three lines:
     fail-on: high
 ```
 
-The Action uses a pre-built GHCR image, so it starts in ~2 seconds instead of
-building a Dockerfile on every run.
+The Action builds from the included Dockerfile. For standalone Docker usage,
+multi-arch images are also available on GHCR (see Install section).
 
 ### Outputs
 

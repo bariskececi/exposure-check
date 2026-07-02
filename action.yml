@@ -59,7 +59,7 @@ outputs:
     description: 'Path to report file (if --output was used)'
 runs:
   using: 'docker'
-  image: 'docker://ghcr.io/bariskececi/exposure-check:latest'
+  image: 'Dockerfile'
   entrypoint: '/entrypoint.sh'
   env:
     INPUT_REPO: ${{ inputs.repo }}
