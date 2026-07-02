@@ -2,4 +2,3 @@
 /exposure-check.exe
 *.out
 dist/
-.github/workflows/
