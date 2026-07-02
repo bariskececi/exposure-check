@@ -1,5 +1,7 @@
 name: 'exposure-check'
-description: 'Find what attackers can see before they do — GitHub org/repo exposure scanner.'
+description: >
+  Find what attackers can see before they do — GitHub org/repo/domain exposure scanner.
+  Exit codes: 0 = pass (no findings at or above fail-on level), 1 = fail (findings found).
 author: 'GNSAC'
 branding:
   icon: 'shield'
@@ -12,17 +14,24 @@ inputs:
   org:
     description: 'organisation or user to scan (public repos)'
     required: false
+  domain:
+    description: 'domain to scan (subdomains, typosquats, login panels, TLS)'
+    required: false
   format:
-    description: 'text | json | markdown | html'
+    description: 'text | json | markdown | html | sarif'
     required: false
     default: 'text'
   fail-on:
-    description: 'none | low | medium | high | critical'
+    description: 'none | low | medium | high | critical — exit 1 if findings at this level or above'
     required: false
     default: 'high'
   output:
     description: 'write the report to a file'
     required: false
+  sarif:
+    description: 'generate SARIF file and upload path (set to true to auto-generate)'
+    required: false
+    default: 'false'
   token:
     description: 'GitHub token'
     required: false
@@ -35,16 +44,31 @@ inputs:
     description: 'suppress progress output'
     required: false
     default: 'false'
+outputs:
+  score:
+    description: 'Posture score (0-100)'
+  findings:
+    description: 'Total number of findings'
+  critical:
+    description: 'Number of critical findings'
+  high:
+    description: 'Number of high findings'
+  sarif-file:
+    description: 'Path to SARIF report file (if sarif input is true)'
+  report:
+    description: 'Path to report file (if --output was used)'
 runs:
   using: 'docker'
-  image: 'Dockerfile'
+  image: 'docker://ghcr.io/bariskececi/exposure-check:latest'
   entrypoint: '/entrypoint.sh'
   env:
     INPUT_REPO: ${{ inputs.repo }}
     INPUT_ORG: ${{ inputs.org }}
+    INPUT_DOMAIN: ${{ inputs.domain }}
     INPUT_FORMAT: ${{ inputs.format }}
     INPUT_FAIL_ON: ${{ inputs.fail-on }}
     INPUT_OUTPUT: ${{ inputs.output }}
+    INPUT_SARIF: ${{ inputs.sarif }}
     INPUT_TOKEN: ${{ inputs.token }}
     INPUT_VERBOSE: ${{ inputs.verbose }}
     INPUT_QUIET: ${{ inputs.quiet }}

@@ -40,8 +40,9 @@ exposure-check serve --port 8080        # custom port
 # Go (any platform)
 go install github.com/bariskececi/exposure-check@latest
 
-# Docker
+# Docker (multi-arch: amd64 + arm64)
 docker run --rm ghcr.io/bariskececi/exposure-check scan --repo owner/repo
+docker run --rm ghcr.io/bariskececi/exposure-check:v0.3 scan --domain example.com
 
 # or grab a prebuilt binary from the Releases page
 ```
@@ -119,25 +120,64 @@ board deck.
 Gate pull requests on exposure in three lines:
 
 ```yaml
-- uses: bariskececi/exposure-check@v1
+- uses: bariskececi/exposure-check@v0.3
   with:
     repo: ${{ github.repository }}
     fail-on: high
 ```
 
-## GitHub Code Scanning (SARIF)
+The Action uses a pre-built GHCR image, so it starts in ~2 seconds instead of
+building a Dockerfile on every run.
 
-Upload results directly to GitHub's Security tab with SARIF output:
+### Outputs
+
+| Output | Description |
+|--------|-------------|
+| `score` | Posture score (0–100) |
+| `findings` | Total finding count |
+| `critical` | Critical finding count |
+| `high` | High finding count |
+| `report` | Path to report file (if `output` is set) |
+| `sarif-file` | Path to SARIF file (if `sarif: true`) |
+
+### Full example with outputs and SARIF
 
 ```yaml
-- uses: bariskececi/exposure-check@v1
+name: security
+on: [push, pull_request]
+jobs:
+  exposure:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write   # required for SARIF upload
+    steps:
+      - uses: actions/checkout@v4
+      - uses: bariskececi/exposure-check@v0.3
+        id: scan
+        with:
+          repo: ${{ github.repository }}
+          fail-on: high
+          sarif: true
+      - if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: ${{ steps.scan.outputs.sarif-file }}
+      - if: always()
+        run: |
+          echo "Score: ${{ steps.scan.outputs.score }}"
+          echo "Findings: ${{ steps.scan.outputs.findings }}"
+          echo "Critical: ${{ steps.scan.outputs.critical }}"
+          echo "High: ${{ steps.scan.outputs.high }}"
+```
+
+### Domain scanning in CI
+
+```yaml
+- uses: bariskececi/exposure-check@v0.3
   with:
-    repo: ${{ github.repository }}
-    format: sarif
-    output: exposure.sarif
-- uses: github/codeql-action/upload-sarif@v3
-  with:
-    sarif_file: exposure.sarif
+    domain: example.com
+    fail-on: high
 ```
 
 Findings appear as native Code Scanning alerts — no external dashboard needed.
@@ -147,7 +187,7 @@ Findings appear as native Code Scanning alerts — no external dashboard needed.
 - ~~**v0.1** — GitHub repo/org scanning, 30+ secret patterns, Actions audit, web dashboard.~~ **Done.**
 - ~~**v0.2** — domain & subdomain exposure, typosquatting / look-alike domains,
   public login-panel discovery, TLS certificate checks.~~ **Done.**
-- **v0.3** — Docker image on GHCR, richer GitHub Action, CI pass/fail policy.
+- ~~**v0.3** — Docker image on GHCR, richer GitHub Action, CI pass/fail policy.~~ **Done.**
 - **v0.4** — OSINT enrichment, optional breach-database lookups, custom rules.
 - Later — developer-device & AI/IDE-plugin exposure signals.
 
